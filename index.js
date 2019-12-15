@@ -3,26 +3,30 @@ class Node {
     this.value = value
     this.left = null
     this.right = null
-    this.parent = null
   }
 }
 
 const commonAncestor = (root, p, q) => {
   // check if either node is not in the tree of if one covers the other
   if (!covers(root, p) || !covers(root, q)) return null
-  else if (covers(p, q)) return p
-  else if (covers(q, p)) return q
+  
+  return ancestorHelper(root, p, q)
+}
 
-  // traverse upwards until you find a node that covers q
-  let sibling = getSibling(p)
-  let parent = p.parent
-
-  while(!covers(sibling, q)) {
-    sibling = getSibling(parent)
-    parent = parent.parent
+const ancestorHelper = (root, p, q) => {
+  if (!root || root === p || root === q) {
+    return root
   }
 
-  return parent.value
+  const pIsOnLeft = covers(root.left, p)
+  const qIsOnLeft = covers(root.left, q)
+
+  if (pIsOnLeft !== qIsOnLeft) { // nodes are on different side
+    return root
+  }
+
+  const childSide = pIsOnLeft ? root.left : root.right
+  return ancestorHelper(childSide, p, q)
 }
 
 const covers = (root, node) => {
@@ -41,20 +45,13 @@ const getSibling = node => {
 const root = new Node(20)
 root.right = new Node(30)
 root.left = new Node(10)
-root.right.parent = root
-root.left.parent = root
 
 root.left.left = new Node(5)
 root.left.right = new Node(15)
-root.left.left.parent = root.left
-root.left.right.parent = root.left
 
 root.left.right.right = new Node(17)
-root.left.right.right.parent = root.left.right
 
 root.left.left.left = new Node(3)
 root.left.left.right = new Node(7)
-root.left.left.left.parent = root.left.left
-root.left.left.right.parent = root.left.left
 
 commonAncestor(root, root.left.left.right, root.left.right.right)
