@@ -7,39 +7,26 @@ class Node {
 }
 
 const commonAncestor = (root, p, q) => {
-  // check if either node is not in the tree of if one covers the other
-  if (!covers(root, p) || !covers(root, q)) return null
-  
-  return ancestorHelper(root, p, q)
-}
+  if (!root) return null
+  if (root === p && root === q) return root
 
-const ancestorHelper = (root, p, q) => {
-  if (!root || root === p || root === q) {
-    return root
+  const x = commonAncestor(root.left, p, q)
+  if (x && x !== p && x !== q) {
+    return x
   }
 
-  const pIsOnLeft = covers(root.left, p)
-  const qIsOnLeft = covers(root.left, q)
-
-  if (pIsOnLeft !== qIsOnLeft) { // nodes are on different side
-    return root
+  const y = commonAncestor(root.right, p, q)
+  if (y && y !== p && y !== q) {
+    return y
   }
 
-  const childSide = pIsOnLeft ? root.left : root.right
-  return ancestorHelper(childSide, p, q)
-}
-
-const covers = (root, node) => {
-  if (!root) return false
-  if (root === node) return true
-  return covers(root.left, node) || covers(root.right, node)
-}
-
-const getSibling = node => {
-  if (!node || !node.parent) return null
-
-  const parent = node.parent
-  return parent.left == node ? parent.right : parent.left
+  if (x && y) { // p and q found in different subtrees
+    return root
+  } else if (root === p || root === q) {
+    return root
+  } else {
+    return x ? x : y
+  }
 }
 
 const root = new Node(20)
