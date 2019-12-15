@@ -7,46 +7,54 @@ class Node {
   }
 }
 
-const commonAncestor = (p, q) => {
-  const delta = depth(p) - depth(q) // get difference in depths
-  let [first, second] = delta > 0 ? [q, p] : [p, q] // get shallower node
-  second = goUpBy(second, Math.abs(delta)) // get deeper node
+const commonAncestor = (root, p, q) => {
+  // check if either node is not in the tree of if one covers the other
+  if (!covers(root, p) || !covers(root, q)) return null
+  else if (covers(p, q)) return p
+  else if (covers(q, p)) return q
 
-  // find where paths intersect
-  while(first !== second && first && second) {
-    first = first.parent
-    second = second.parent
+  // traverse upwards until you find a node that covers q
+  let sibling = getSibling(p)
+  let parent = p.parent
+
+  while(!covers(sibling, q)) {
+    sibling = getSibling(parent)
+    parent = parent.parent
   }
 
-  return !first || !second ? null : first
+  return parent.value
 }
 
-const goUpBy = (node, delta) => {
-  while(delta > 0 && node) {
-    node = node.parent
-    delta--
-  }
-  return node
+const covers = (root, node) => {
+  if (!root) return false
+  if (root === node) return true
+  return covers(root.left, node) || covers(root.right, node)
 }
 
-const depth = node => {
-  let depth = 0
-  while (node) {
-    node = node.parent
-    depth++
-  }
-  return depth
+const getSibling = node => {
+  if (!node || !node.parent) return null
+
+  const parent = node.parent
+  return parent.left == node ? parent.right : parent.left
 }
 
-const root = new Node(7)
-root.left = new Node(5)
-root.right = new Node(9)
-root.left.parent = root
+const root = new Node(20)
+root.right = new Node(30)
+root.left = new Node(10)
 root.right.parent = root
+root.left.parent = root
 
-root.left.left = new Node(3)
-root.left.right = new Node(11)
+root.left.left = new Node(5)
+root.left.right = new Node(15)
 root.left.left.parent = root.left
 root.left.right.parent = root.left
 
-commonAncestor(root, root.left.left, root.right)
+root.left.right.right = new Node(17)
+root.left.right.right.parent = root.left.right
+
+root.left.left.left = new Node(3)
+root.left.left.right = new Node(7)
+root.left.left.left.parent = root.left.left
+root.left.left.right.parent = root.left.left
+
+commonAncestor(root, root.left.left.right, root.left.right.right)
